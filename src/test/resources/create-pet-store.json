@@ -1,0 +1,26 @@
+{
+  "petStoreName": "PetsPlusBulbs",
+  "petStoreAddress": "89 Flourescent Dog Lane",
+  "petStoreCity": "Hayden",
+  "petStoreState": "Idaho",
+  "petStoreZip" : "83835",
+  "petStorePhone": "208-772-2354"
+}
+
+{
+  "petStoreName": "The Barn Rodent Shop",
+  "petStoreAddress": "90987 East ScreeminWife Dr",
+  "petStoreCity": "San Diego",
+  "petStoreState": "California",
+  "petStoreZip" : "86954",
+  "petStorePhone": "800-894-1394"
+}
+
+{
+  "petStoreName": "Kittens & Dumplings petstore and Chinese takeout",
+  "petStoreAddress": "48752 East Overyonder St",
+  "petStoreCity": "Carlsbad",
+  "petStoreState": "California",
+  "petStoreZip" : "85975",
+  "petStorePhone": "800-458-3333"
+}

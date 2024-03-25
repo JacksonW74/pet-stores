@@ -7,17 +7,27 @@ import pet.stores.entity.Customer;
 @Data
 @NoArgsConstructor
 public class PetStoreCustomer {
-    private Long id;
-    private String firstName;
-    private String lastName;
-    private String email;
+    private Long customer_id;
+    private String customerFirstName;
+    private String customerLastName;
+    private String customerEmail;
 
     // Constructor
     public PetStoreCustomer(Customer customer) {
-        this.id = customer.getId();
-        this.firstName = customer.getFirstName();
-        this.lastName = customer.getLastName();
-        this.email = customer.getEmail();
+        this.customer_id = customer.getCustomerId(); 
+        this.customerFirstName = customer.getCustomerFirstName();
+        this.customerLastName = customer.getCustomerLastName();
+        this.customerEmail = customer.getCustomerEmail();
         // Initialize other fields accordingly if needed
+    }
+
+    // Setter method for customer_id
+    public void setCustomer_id(Long customer_id) {
+        this.customer_id = customer_id;
+    }
+
+    // Getter method for customer_id
+    public Long getCustomer_id() {
+        return customer_id;
     }
 }

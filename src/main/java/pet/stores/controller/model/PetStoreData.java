@@ -7,7 +7,7 @@ import pet.stores.entity.PetStore;
 @Data
 @NoArgsConstructor
 public class PetStoreData {
-    private Long id;
+    private Long petStoreId;
 
     private String petStoreName;
     private String petStoreAddress;
@@ -16,9 +16,8 @@ public class PetStoreData {
     private String petStoreZip;
     private String petStorePhone;
 
-    // Constructor
     public PetStoreData(PetStore petStore) {
-        this.id = petStore.getId();
+        this.petStoreId = petStore.getPetStoreId();
         this.petStoreName = petStore.getName();
         this.petStoreAddress = petStore.getPetStoreAddress();
         this.petStoreCity = petStore.getPetStoreCity();

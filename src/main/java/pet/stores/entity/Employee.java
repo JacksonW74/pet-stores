@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Data
@@ -15,12 +16,23 @@ public class Employee {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String firstName;
-    private String lastName;
+    @EqualsAndHashCode.Exclude
+    private Long employeeId;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "pet_store_id")
+    @EqualsAndHashCode.Exclude
+    @JoinColumn(name = "pet_store_id") // Specify the column name explicitly
     private PetStore petStore;
+
+    @EqualsAndHashCode.Exclude
+    private String employeeFirstName;
+
+    @EqualsAndHashCode.Exclude
+    private String employeeLastName;
+
+    @EqualsAndHashCode.Exclude
+    private String employeeEmail;
+
+    @EqualsAndHashCode.Exclude
+    private String employeeJobTitle;
 }
