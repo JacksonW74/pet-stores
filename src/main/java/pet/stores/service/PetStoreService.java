@@ -42,10 +42,9 @@ public class PetStoreService {
     }
 
     @Transactional
-    public PetStoreData getPetStoreById(Long id) {
-        PetStore petStore = petStoreDao.findById(id)
+    public PetStore getPetStoreById(Long id) {
+        return petStoreDao.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Pet store not found with ID: " + id));
-        return new PetStoreData(petStore);
     }
 
     @Transactional
@@ -72,38 +71,54 @@ public class PetStoreService {
     }
     
     @Transactional
-    public PetStoreCustomer saveCustomer(PetStoreCustomer petStoreCustomer) {
-        Customer customer = new Customer();
+    public PetStoreCustomer saveCustomer(Long petStoreId, PetStoreCustomer petStoreCustomer) {
+    	PetStore petStore = getPetStoreById(petStoreId);
+        Long customerId = petStoreCustomer.getCustomerId();
+        Customer customer = findOrCreateCustomer(petStoreId, customerId);
+
+        copyCustomerFields(customer, petStoreCustomer);
+        
+        customer.getPetStores().add(petStore);
+        petStore.getCustomers().add(customer);
+        
+        Customer dbcustomer = customerDao.save(customer);
+
+        return new PetStoreCustomer(dbcustomer);
+    }
+    
+    @Transactional
+    private Customer findOrCreateCustomer(Long petStoreId, Long customerId) {
+        if (customerId == null)
+            return new Customer();
+        else
+            return findCustomerById(petStoreId, customerId);
+    }
+
+	private void copyCustomerFields(Customer customer, PetStoreCustomer petStoreCustomer) {
         customer.setCustomerFirstName(petStoreCustomer.getCustomerFirstName());
         customer.setCustomerLastName(petStoreCustomer.getCustomerLastName());
         customer.setCustomerEmail(petStoreCustomer.getCustomerEmail());
-
-        // Save the customer
-        customer = customerDao.save(customer);
-
-        return new PetStoreCustomer(customer);
-    }
+		
+	}
 
     @Transactional
-    public PetStoreCustomer updateCustomer(Long customerId, PetStoreCustomer updatedCustomer) {
+    private Customer findCustomerById(Long petStoreId, Long customerId) {
         Customer customer = customerDao.findById(customerId)
-                .orElseThrow(() -> new NoSuchElementException("Customer not found with ID: " + customerId));
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found"));
 
-        // Update customer fields
-        customer.setCustomerFirstName(updatedCustomer.getCustomerFirstName());
-        customer.setCustomerLastName(updatedCustomer.getCustomerLastName());
-        customer.setCustomerEmail(updatedCustomer.getCustomerEmail());
-
-        // Set the customer ID
-        updatedCustomer.setCustomer_id(customerId);
-
-        // Save the updated customer
-        customer = customerDao.save(customer);
-
-        // Return the updated customer
-        return updatedCustomer;
+        boolean found = false;
+        
+        for (PetStore petStore : customer.getPetStores()) {
+        	if (petStore.getPetStoreId().equals(petStoreId)) {
+        	found = true;
+        	break;
+        	}
+        }
+        if (!found) {
+        	throw new IllegalArgumentException("Customer does not belong to pet store with ID: " + petStoreId);
+        }
+            return customer;            
     }
-
 
     @Transactional
     public ResponseEntity<String> deleteCustomerById(Long customerId) {
@@ -113,8 +128,7 @@ public class PetStoreService {
         customerDao.delete(customer);
         return ResponseEntity.ok().body("Customer with ID " + customerId + " deleted successfully.");
     }
-
-    
+   
     @Transactional
     public List<PetStoreCustomer> retrieveAllCustomers() {
         List<Customer> customers = customerDao.findAll();
@@ -130,16 +144,77 @@ public class PetStoreService {
         return new PetStoreCustomer(customer);
     }
 
+    @Transactional
+    public PetStoreEmployee saveEmployee(Long petStoreId, PetStoreEmployee petStoreEmployee) {
+        PetStore petStore = getPetStoreById(petStoreId);
+        Long employeeId = petStoreEmployee.getEmployeeId();
+        Employee employee = findOrCreateEmployee(petStoreId, employeeId);
+
+        copyEmployeeFields(employee, petStoreEmployee);
+
+        employee.setPetStore(petStore);
+        petStore.getEmployees().add(employee);
+
+        Employee dbEmployee = employeeDao.save(employee);
+        return new PetStoreEmployee(dbEmployee);
+    }
 
     @Transactional
-    public PetStoreEmployee saveEmployee(PetStoreEmployee petStoreEmployee) {
-        Employee employee = new Employee();
+    private Employee findOrCreateEmployee(Long petStoreId, Long employeeId) {
+        if (employeeId == null)
+            return new Employee();
+        else
+            return findEmployeeById(petStoreId, employeeId);
+    }
+
+    @Transactional
+    private Employee findEmployeeById(Long petStoreId, Long employeeId) {
+        Employee employee = employeeDao.findById(employeeId)
+                .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
+
+        if (employee.getPetStore().getPetStoreId().equals(petStoreId))
+            return employee;
+        else
+            throw new IllegalArgumentException("Employee does not belong to pet store with ID: " + petStoreId);
+    }
+    
+//    @Transactional
+//    public PetStoreEmployee saveEmployee(petStoreId, petStoreEmployee) {
+//    	petStore = findPetStoreById(ID);
+//    	employeeId = petStoreEmployee.getEmployeeId();
+//    	employee = findOrCreateEmployee(petStoreId, employeeId);
+//    	
+//    	copyEmployeeFields(employee, petStoreEmployee);
+//    	
+//    	set petStore in employee;
+//    	add employee to pet store list of employees;
+//    	
+//    	dbEmployee = save the employee(employeeDao.save);
+//    			return new PetStoreEmployee(dbEmployee);
+//    }
+//    
+//    private Employee findOrCreateEmployee(petStoreId, employeeId) {
+//    	if employeeId is null
+//    	return new Employee 
+//    	else return findEmployeeById(petStoreId, employeeId);
+//    }
+//    
+//    private Employee findEmployeeById(petStoreId, employeeId) {
+//    	employee = employeeDao.findById(employeeId)
+//    			.orElseThrow(msg);
+//    	
+//    	if employee petStoreId equals petStoreId;
+//    		return new Employee;
+//    		else throw IllegalArgumentException(msg);
+//    }
+
+
+    private void copyEmployeeFields(Employee employee, PetStoreEmployee petStoreEmployee) {
+    	employee.setEmployeeId(petStoreEmployee.getEmployeeId());
         employee.setEmployeeFirstName(petStoreEmployee.getEmployeeFirstName());
         employee.setEmployeeLastName(petStoreEmployee.getEmployeeLastName());
         employee.setEmployeeEmail(petStoreEmployee.getEmployeeEmail());
         employee.setEmployeeJobTitle(petStoreEmployee.getEmployeeJobTitle());
-
-        return new PetStoreEmployee(employeeDao.save(employee));
     }
 
     @Transactional(readOnly = false)
